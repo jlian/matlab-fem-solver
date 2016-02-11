@@ -1,12 +1,14 @@
 # FEM Solver with MATLAB
 
-Please read the PDF for more details.
+![Image of the solver in action](https://raw.githubusercontent.com/jlian/fem-solver/master/doc/matlab.png)
+
+Please read the [PDF](https://github.com/jlian/fem-solver/blob/master/fem_solver.pdf) for more details.
 
 This solver is not generic and solves just one problem. However, it should be easy to adapt it to different problems.
 
 ## How to use
 
-Run the FreeFEM++ (examplemesh.edp) file in `/src` and to obtain the mesh file. It's also included pre-compiled in the same folder.
+Run the FreeFEM++ (`examplemesh.edp`) file in `/src` and to obtain the mesh file. It's also included pre-compiled in the same folder.
 
 Then run the `femsolver.m` MATLAB file for analysis, and output.
 

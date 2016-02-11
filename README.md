@@ -1,6 +1,6 @@
 # FEM Solver with MATLAB
 
-![Image of the solver in action](https://raw.githubusercontent.com/jlian/fem-solver/master/doc/matlab.png)
+<img src="https://raw.githubusercontent.com/jlian/fem-solver/master/doc/matlab.png" width="400">
 
 Please read the [PDF](https://github.com/jlian/fem-solver/blob/master/fem_solver.pdf) for more details.
 

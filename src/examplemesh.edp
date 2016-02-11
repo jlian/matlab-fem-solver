@@ -1,0 +1,84 @@
+// MESH
+real R=13., a=12., b=5., ya=sqrt(R^2-9^2), m=121;
+border aa(t=0,2*sqrt(R^2-9^2)){x=-9;y=ya-t;label=1;};
+border bb(t=0,21){x=-9+t;y=-1*sqrt(R^2-x^2);label=2;};
+border cc(t=0,12){x=12-t;y=-b*sqrt(1-(t/a)^2);label=3;};
+border dd(t=0,12){x=t;y=b*sqrt(1-((t-12)/a)^2);label=4;};
+border ee(t=0,21){x=12-t;y=sqrt(R^2-x^2);label=5;};
+
+mesh Sh = buildmesh ( aa(m) + bb(m)+  cc(m)+ dd(m)+ ee(m));
+savemesh(Sh,"mesh50.msh");
+
+fespace Vh(Sh,P1); //Finite elements (P1) space definition
+Vh u,v,uu,vv;      //Variables difinition
+
+//Some constants and physical parameters
+real delta = 100;
+real E = 200e9, nu = 0.3;
+real lambda = E*nu/((1+nu)*(1-2*nu));
+real mu = E/(2*(1+nu));
+real f = -1000;//vertical gravity
+real rho=7750;
+real t=1;//thickness
+real p=10000;//external pressure (N/m^2)
+real sqrt2=sqrt(2.);
+
+
+//We can define macros to make programming easier
+macro epsilon(u,v)  [dx(u),dy(v),(dy(u)+dx(v))/sqrt2] // EOM
+macro div(u,v) (dx(u)+dy(v)) // EOM
+
+//Solving the problem in variational form
+solve lame([u,v],[uu,vv])= int2d(Sh)(
+        lambda*div(u,v)*div(uu,vv)
+        +2.*mu*( epsilon(u,v)'*epsilon(uu,vv) ) )
+
+
+// Body forces
+-int2d(Sh)(f*rho*t*vv)
+
+
+
+
+// Neuman conditions
+-int1d(Sh,2,3)(-p*(N.x)*uu-p*(N.y)*vv)
+-int1d(Sh,4,5)(-p*(N.x)*uu-p*(N.y)*vv)
+
+// Direchlett conditions
++ on(1,u=0,v=0);
+
+
+
+//Obtaining the von Mises stress
+fespace Wh(Sh,P1); //We can define a new finite elements space
+Wh Sigmavm;
+//Stress tensor (since it is symmetric, it is enough with 3 elements)
+macro Sigma(u,v) [2*mu*dx(u)+lambda*(dx(u)+dy(v)),
+                  2*mu*dy(v)+lambda*(dx(u)+dy(v)),mu*(dy(u)+dx(v))]//EOM
+//Von Mises stress
+Sigmavm = sqrt(Sigma(u,v)[0]*Sigma(u,v)[0]-Sigma(u,v)[0]*Sigma(u,v)[1]
+               +Sigma(u,v)[1]*Sigma(u,v)[1]+3*Sigma(u,v)[2]*Sigma(u,v)[2]);
+
+real Sigmavmmax = Sigmavm[].max; //Max. von Mises stress
+
+cout << " Max von Mises Stress  = " << Sigmavmmax << endl;
+
+
+//Ploting the result
+real coef=100; //A coefficient of amplification
+mesh Shd = movemesh(Sh, [x+u*coef, y+v*coef]);
+real dxmin  = u[].min; //Minimum of displacement in x direction
+real dymin  = v[].min; //Minimum of displacement in y direction
+
+cout << " Minimum of displacement in x direction  = " << dxmin << endl;
+cout << " Minimum of displacement in y direction  = " << dymin << endl;
+
+//Put stress and displacements together
+fespace Wh0(Shd,P1);
+Wh0 tau=0;
+tau[]=Sigmavm[];
+
+
+plot(tau,fill=1,cmm="Von Mises stress on deformed configuration",ColorScheme = 1,ps="freefem.eps");
+
+

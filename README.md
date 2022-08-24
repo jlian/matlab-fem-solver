@@ -4,7 +4,7 @@
 
 Please read the [PDF](https://github.com/jlian/fem-solver/blob/master/fem_solver.pdf) for more details.
 
-This solver is not generic and solves just one problem. However, it should be easy to adapt it to different problems.
+This solver is not generic and solves just one problem. However, it should be easy to adapt it to different problems. Not tested with Octave.
 
 ## How to use
 
